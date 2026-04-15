@@ -1,0 +1,6 @@
+export { default as WhoWeArePage } from './whoWeAre/WhoWeArePage.jsx'
+export { default as FeaturedProjectsPage } from './featuredProjects/FeaturedProjectsPage.jsx' 
+export { default as ContactPage } from './contact/ContactPage.jsx'
+export { default as TermsPage } from './terms/TermsPage.jsx'
+export { default as PrivacyPage } from './privacy/PrivacyPage.jsx'
+export { default as FaqPage } from './faq/FaqPage.jsx'
