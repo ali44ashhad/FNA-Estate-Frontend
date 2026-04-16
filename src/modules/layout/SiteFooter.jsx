@@ -1,8 +1,14 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import Container from '../../shared/components/Container.jsx'
 import { ROUTES } from '../../shared/constants/routes.js'
 
 export default function SiteFooter() {
+  const { pathname } = useLocation()
+
+  if (pathname === ROUTES.login || pathname === ROUTES.signup) {
+    return null
+  }
+
   return (
     <footer className="border-t border-slate-200 bg-slate-900 text-slate-300">
       <Container className="py-12">

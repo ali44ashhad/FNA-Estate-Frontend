@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import Container from '../../shared/components/Container.jsx'
 import { ROUTES } from '../../shared/constants/routes.js'
 import { navCities, navProjects } from '../home/data/homeContent.js'
@@ -14,6 +14,11 @@ function ChevronDown({ className = '' }) {
 
 export default function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { pathname } = useLocation()
+
+  if (pathname === ROUTES.login || pathname === ROUTES.signup) {
+    return null
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
@@ -90,6 +95,15 @@ export default function SiteHeader() {
           >
             Wishlist <span className="text-slate-400">0</span>
           </button>
+          <Link to={ROUTES.login} className="text-sm font-medium text-slate-600 hover:text-emerald-800">
+            Log in
+          </Link>
+          <Link
+            to={ROUTES.signup}
+            className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-100"
+          >
+            Sign up
+          </Link>
           <Link
             to={ROUTES.contact}
             className="rounded-full bg-emerald-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-900"
@@ -123,6 +137,20 @@ export default function SiteHeader() {
           <Container className="flex flex-col gap-1 py-4">
             <Link to={ROUTES.home} className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50" onClick={() => setMobileOpen(false)}>
               Home
+            </Link>
+            <Link
+              to={ROUTES.login}
+              className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
+              onClick={() => setMobileOpen(false)}
+            >
+              Log in
+            </Link>
+            <Link
+              to={ROUTES.signup}
+              className="rounded-lg px-3 py-2 font-semibold text-emerald-800 hover:bg-emerald-50"
+              onClick={() => setMobileOpen(false)}
+            >
+              Sign up
             </Link>
             <Link
               to={`${ROUTES.home}#projects`}
