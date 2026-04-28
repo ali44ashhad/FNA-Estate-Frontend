@@ -3,6 +3,7 @@ export const ROUTES = {
   home: '/',
   whoWeAre: '/who-we-are',
   featuredProjects: '/featured-projects',
+  projects: '/projects',
   blog: '#',
   contact: '/contact',
   terms: '/terms',

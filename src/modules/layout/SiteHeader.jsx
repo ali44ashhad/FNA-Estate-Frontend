@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import Container from '../../shared/components/Container.jsx'
 import { ROUTES } from '../../shared/constants/routes.js'
-import { navCities, navProjects } from '../home/data/homeContent.js'
+import { navCities } from '../home/data/homeContent.js'
+import { PROJECT_PROPERTY_TYPE_OPTIONS } from '../../shared/constants/projectTypes.js'
 
 function ChevronDown({ className = '' }) {
   return (
@@ -42,13 +43,17 @@ export default function SiteHeader() {
             </button>
             <div className="invisible absolute left-0 top-full pt-1 opacity-0 transition group-hover:visible group-hover:opacity-100">
               <div className="min-w-[12rem] rounded-xl border border-slate-200 bg-white py-2 shadow-lg">
-                {navProjects.map((item) => (
+                {PROJECT_PROPERTY_TYPE_OPTIONS.map((item) => (
                   <Link
-                    key={item}
-                    to={`${ROUTES.home}#projects`}
+                    key={item.value || 'all'}
+                    to={
+                      item.value
+                        ? `${ROUTES.projects}?propertyType=${encodeURIComponent(item.value)}`
+                        : ROUTES.projects
+                    }
                     className="block px-4 py-2 text-left text-slate-700 hover:bg-emerald-50 hover:text-emerald-900"
                   >
-                    {item}
+                    {item.label}
                   </Link>
                 ))}
               </div>
@@ -153,7 +158,7 @@ export default function SiteHeader() {
               Sign up
             </Link>
             <Link
-              to={`${ROUTES.home}#projects`}
+              to={ROUTES.projects}
               className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
               onClick={() => setMobileOpen(false)}
             >

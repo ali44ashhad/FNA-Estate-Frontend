@@ -1,5 +1,7 @@
 export { default as WhoWeArePage } from './whoWeAre/WhoWeArePage.jsx'
 export { default as FeaturedProjectsPage } from './featuredProjects/FeaturedProjectsPage.jsx' 
+export { default as ProjectsPage } from './projects/ProjectsPage.jsx'
+export { default as ProjectDetailsPage } from './projectDetails/ProjectDetailsPage.jsx'
 export { default as ContactPage } from './contact/ContactPage.jsx'
 export { default as TermsPage } from './terms/TermsPage.jsx'
 export { default as PrivacyPage } from './privacy/PrivacyPage.jsx'

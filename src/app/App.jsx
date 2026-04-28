@@ -5,6 +5,8 @@ import {
   ContactPage,
   FaqPage,
   FeaturedProjectsPage,
+  ProjectsPage,
+  ProjectDetailsPage,
   LoginPage,
   PrivacyPage,
   SignupPage,
@@ -18,7 +20,10 @@ export default function App() {
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/who-we-are" element={<WhoWeArePage />} />
-        <Route path="/featured-projects" element={<FeaturedProjectsPage />} />        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/featured-projects" element={<FeaturedProjectsPage />} />
+        <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/projects/:id" element={<ProjectDetailsPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/terms" element={<TermsPage />} />
