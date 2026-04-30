@@ -2,17 +2,33 @@ import { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import Container from '../../../shared/components/Container.jsx'
 import ProjectCard from '../../../shared/components/ProjectCard.jsx'
-import { formatPriceLabel } from '../../../shared/api/projects.js'
-import { PROJECT_PROPERTY_TYPE_OPTIONS, PROJECT_PROPERTY_TYPES } from '../../../shared/constants/projectTypes.js'
-import PropertyTypeTabs from '../../projects/components/PropertyTypeTabs.jsx'
+import {
+  getSubTypeOptions,
+  PROJECT_CATEGORY_OPTIONS,
+  PROJECT_CATEGORIES,
+} from '../../../shared/constants/projectTypes.js'
+import CategoryTabs from '../../projects/components/filters/CategoryTabs.jsx'
+import SubTypeSelect from '../../projects/components/filters/SubTypeSelect.jsx'
+import ApartmentConfigSelect from '../../projects/components/filters/ApartmentConfigSelect.jsx'
 import { useProjectsList } from '../../projects/hooks/useProjectsList.js'
 import Pagination from '../../projects/components/Pagination.jsx'
 import { projectToCardProps } from '../../projects/utils/projectCardAdapter.js'
 
-function normalizePropertyType(raw) {
+function normalizeCategory(raw) {
   const v = typeof raw === 'string' ? raw.trim().toLowerCase() : ''
-  if (v === 'apartment' || v === 'plot' || v === 'villa') return v
+  if (v === 'residential' || v === 'commercial') return v
   return ''
+}
+
+function normalizeSubType(raw) {
+  const v = typeof raw === 'string' ? raw.trim().toLowerCase() : ''
+  if (!v) return ''
+  return v
+}
+
+function normalizeApartmentConfig(raw) {
+  const v = typeof raw === 'string' ? raw.trim() : ''
+  return v
 }
 
 function normalizePage(raw) {
@@ -21,36 +37,74 @@ function normalizePage(raw) {
   return Math.floor(n)
 }
 
-function formatBadge(p) {
-  const type = PROJECT_PROPERTY_TYPES[p?.propertyType] || 'Project'
-  const status = typeof p?.status === 'string' && p.status.trim() ? p.status.trim() : null
-  return status ? `${type} · ${status}` : type
-}
-
-function formatLocation(p) {
-  const name = p?.city?.name
-  const state = p?.city?.state
-  if (typeof name === 'string' && typeof state === 'string') return `${name}, ${state}`
-  if (typeof name === 'string') return name
-  return '—'
-}
-
 export default function ProjectsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const selectedType = normalizePropertyType(searchParams.get('propertyType'))
+  const category = normalizeCategory(searchParams.get('category'))
+  const subType = normalizeSubType(searchParams.get('subType'))
+  const apartmentConfig = normalizeApartmentConfig(searchParams.get('apartmentConfig'))
   const page = normalizePage(searchParams.get('page'))
 
-  const tabs = useMemo(() => PROJECT_PROPERTY_TYPE_OPTIONS, [])
+  const tabs = useMemo(() => PROJECT_CATEGORY_OPTIONS, [])
+  const subTypeOptions = useMemo(() => getSubTypeOptions(category), [category])
 
   const limit = 9
-  const state = useProjectsList({ propertyType: selectedType || undefined, page, limit })
+  const state = useProjectsList({
+    category: category || undefined,
+    subType: subType || undefined,
+    apartmentConfig: apartmentConfig || undefined,
+    page,
+    limit,
+  })
   const totalPages = Math.max(1, Math.ceil((state.meta?.total || 0) / limit))
 
-  function onSelectType(next) {
-    const nextType = normalizePropertyType(next)
+  const apartmentConfigOptions = useMemo(() => {
+    if (category !== 'residential' || subType !== 'apartment') return [{ value: '', label: 'All configs' }]
+    const set = new Map()
+    for (const p of state.items) {
+      const inv = Array.isArray(p?.inventory) ? p.inventory : []
+      for (const row of inv) {
+        if (row?.category !== 'residential' || row?.subType !== 'apartment') continue
+        const cfgs = Array.isArray(row?.apartmentConfigs) ? row.apartmentConfigs : []
+        for (const cfg of cfgs) {
+          const key = typeof cfg?.config === 'string' ? cfg.config.trim() : ''
+          if (!key) continue
+          const label = typeof cfg?.configLabel === 'string' && cfg.configLabel.trim() ? cfg.configLabel.trim() : key
+          if (!set.has(key)) set.set(key, label)
+        }
+      }
+    }
+    const opts = [...set.entries()]
+      .sort((a, b) => a[1].localeCompare(b[1]))
+      .map(([value, label]) => ({ value, label }))
+    return [{ value: '', label: 'All configs' }, ...opts]
+  }, [apartmentConfig, category, subType, state.items])
+
+  function onSelectCategory(next) {
+    const nextCategory = normalizeCategory(next)
     const nextParams = new URLSearchParams(searchParams)
-    if (nextType) nextParams.set('propertyType', nextType)
-    else nextParams.delete('propertyType')
+    if (nextCategory) nextParams.set('category', nextCategory)
+    else nextParams.delete('category')
+    nextParams.delete('subType')
+    nextParams.delete('apartmentConfig')
+    nextParams.delete('page')
+    setSearchParams(nextParams, { replace: false })
+  }
+
+  function onSelectSubType(next) {
+    const nextSubType = normalizeSubType(next)
+    const nextParams = new URLSearchParams(searchParams)
+    if (nextSubType) nextParams.set('subType', nextSubType)
+    else nextParams.delete('subType')
+    if (nextSubType !== 'apartment') nextParams.delete('apartmentConfig')
+    nextParams.delete('page')
+    setSearchParams(nextParams, { replace: false })
+  }
+
+  function onSelectApartmentConfig(next) {
+    const nextConfig = normalizeApartmentConfig(next)
+    const nextParams = new URLSearchParams(searchParams)
+    if (nextConfig) nextParams.set('apartmentConfig', nextConfig)
+    else nextParams.delete('apartmentConfig')
     nextParams.delete('page')
     setSearchParams(nextParams, { replace: false })
   }
@@ -73,7 +127,39 @@ export default function ProjectsPage() {
         </header>
 
         <div className="mb-8">
-          <PropertyTypeTabs options={tabs} value={selectedType} onChange={onSelectType} />
+          <div className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-slate-900">Filters</p>
+                <p className="mt-0.5 text-xs text-slate-600">
+                  Browse {category ? PROJECT_CATEGORIES[category] : 'all'} projects by sub-type.
+                </p>
+              </div>
+              <CategoryTabs options={tabs} value={category} onChange={onSelectCategory} />
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-12">
+              <div className="md:col-span-6">
+                <SubTypeSelect
+                  options={subTypeOptions}
+                  value={subType}
+                  onChange={onSelectSubType}
+                  label={category ? `${PROJECT_CATEGORIES[category]} sub-type` : 'Sub-type'}
+                  disabled={!category}
+                />
+              </div>
+
+              {category === 'residential' && subType === 'apartment' ? (
+                <div className="md:col-span-6">
+                  <ApartmentConfigSelect
+                    options={apartmentConfigOptions}
+                    value={apartmentConfig}
+                    onChange={onSelectApartmentConfig}
+                  />
+                </div>
+              ) : null}
+            </div>
+          </div>
         </div>
 
         {state.error ? (
@@ -107,7 +193,7 @@ export default function ProjectsPage() {
         {!state.loading && !state.error && state.items.length === 0 ? (
           <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-6 text-slate-800">
             <p className="text-base font-semibold">No projects found</p>
-            <p className="mt-1 text-sm text-slate-600">Try a different project type.</p>
+            <p className="mt-1 text-sm text-slate-600">Try changing the category or sub-type filters.</p>
             <div className="mt-4">
               <Link
                 to="/projects"

@@ -1,4 +1,4 @@
-import { PROJECT_PROPERTY_TYPES } from '../../../shared/constants/projectTypes.js'
+import { PROJECT_CATEGORIES, PROJECT_PROPERTY_TYPES } from '../../../shared/constants/projectTypes.js'
 import { formatPriceLabel } from '../../../shared/api/projects.js'
 
 export function projectToCardProps(p) {
@@ -15,7 +15,21 @@ export function projectToCardProps(p) {
         ? cityName
         : '—'
 
-  const typeLabel = PROJECT_PROPERTY_TYPES[p?.propertyType] || 'Project'
+  const categories = Array.isArray(p?.categories)
+    ? p.categories.filter((c) => c === 'residential' || c === 'commercial')
+    : []
+  const hasResidential = categories.includes('residential')
+  const hasCommercial = categories.includes('commercial')
+
+  const typeLabel =
+    hasResidential && hasCommercial
+      ? PROJECT_CATEGORIES.mixed_use
+      : hasResidential
+        ? PROJECT_CATEGORIES.residential
+        : hasCommercial
+          ? PROJECT_CATEGORIES.commercial
+          : PROJECT_PROPERTY_TYPES[p?.propertyType] || 'Project'
+
   const status = typeof p?.status === 'string' && p.status.trim() ? p.status.trim() : null
   const badge = status ? `${typeLabel} · ${status}` : typeLabel
 

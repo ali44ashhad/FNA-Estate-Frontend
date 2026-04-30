@@ -1,6 +1,31 @@
+import { useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import StaticPageLayout from '../../../shared/components/StaticPageLayout.jsx'
 
 export default function ContactPage() {
+  const [searchParams] = useSearchParams()
+
+  const prefillMessage = useMemo(() => {
+    const projectId = searchParams.get('projectId') || ''
+    const projectName = searchParams.get('projectName') || ''
+    const category = searchParams.get('category') || ''
+    const subType = searchParams.get('subType') || ''
+    const apartmentConfig = searchParams.get('apartmentConfig') || ''
+
+    const parts = []
+    if (projectName.trim()) parts.push(`Project: ${projectName.trim()}`)
+    if (category.trim() || subType.trim()) {
+      const tail = [category.trim(), subType.trim(), apartmentConfig.trim()].filter(Boolean).join(' / ')
+      if (tail) parts.push(`Preference: ${tail}`)
+    }
+    if (projectId.trim()) parts.push(`Project ID: ${projectId.trim()}`)
+
+    if (!parts.length) return ''
+    return `Hi team,\n\nI’d like to enquire about:\n- ${parts.join('\n- ')}\n\nPlease share the latest availability and next steps.\n`
+  }, [searchParams])
+
+  const [message, setMessage] = useState(prefillMessage)
+
   return (
     <StaticPageLayout
       title="Contact us"
@@ -74,6 +99,8 @@ export default function ContactPage() {
               id="contact-message"
               name="message"
               rows={4}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
               placeholder="City, budget range, and property type help us respond faster."
             />

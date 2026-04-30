@@ -5,7 +5,7 @@ import { useProjectDetails } from '../../projects/hooks/useProjectDetails.js'
 import ProjectAmenities from '../../projects/components/ProjectAmenities.jsx'
 import ProjectImageGallery from '../../projects/components/ProjectImageGallery.jsx'
 import ProjectMeta from '../../projects/components/ProjectMeta.jsx'
-import ProjectPricing from '../../projects/components/ProjectPricing.jsx'
+import ProjectInventoryOptions from '../../projects/components/ProjectInventoryOptions.jsx'
 
 function sanitizeHtml(html) {
   const input = typeof html === 'string' ? html : ''
@@ -113,7 +113,7 @@ export default function ProjectDetailsPage() {
             </div>
             <div className="lg:col-span-5">
               <div className="grid gap-6">
-                <ProjectPricing project={state.item} />
+                <ProjectInventoryOptions project={state.item} />
 
                 <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                   <h2 className="text-base font-semibold text-slate-900">About</h2>
