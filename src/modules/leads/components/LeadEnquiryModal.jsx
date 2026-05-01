@@ -27,6 +27,7 @@ export default function LeadEnquiryModal({ open, onClose, project, interest, onA
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(null)
+  const [phone, setPhone] = useState('')
 
   const projectName = typeof project?.name === 'string' ? project.name.trim() : ''
   const projectId = typeof project?.id === 'string' ? project.id : project?.id
@@ -47,7 +48,8 @@ export default function LeadEnquiryModal({ open, onClose, project, interest, onA
     if (!open) return
     setError('')
     setSuccess(null)
-  }, [open])
+    setPhone('')
+  }, [open, onAuthRequired])
 
   useEffect(() => {
     if (!open) return
@@ -86,6 +88,12 @@ export default function LeadEnquiryModal({ open, onClose, project, interest, onA
       return
     }
 
+    const normalizedPhone = typeof phone === 'string' ? phone.replace(/\D/g, '').trim() : ''
+    if (!/^\d{10}$/.test(normalizedPhone)) {
+      setError('Please enter a valid 10-digit phone number')
+      return
+    }
+
     const category = normalizeKey(interest?.category)
     const subType = normalizeKey(interest?.subType)
     const apartmentConfig = normalizeKey(interest?.apartmentConfig)
@@ -106,6 +114,7 @@ export default function LeadEnquiryModal({ open, onClose, project, interest, onA
     try {
       const payload = {
         projectId: String(projectId),
+        phone: normalizedPhone,
         interest: {
           category,
           subType,
@@ -206,6 +215,30 @@ export default function LeadEnquiryModal({ open, onClose, project, interest, onA
                 ) : (
                   <p className="mt-2 text-sm text-slate-600">We couldn’t load your profile. You can still try submitting the enquiry.</p>
                 )}
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Phone</p>
+                <div className="mt-2">
+                  <label className="sr-only" htmlFor="lead-phone">
+                    Phone number
+                  </label>
+                  <input
+                    id="lead-phone"
+                    type="tel"
+                    inputMode="numeric"
+                    autoComplete="tel"
+                    placeholder="10-digit phone number"
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-600/10"
+                    value={phone}
+                    onChange={(e) => {
+                      const digits = String(e.target.value || '').replace(/\D/g, '').slice(0, 10)
+                      setPhone(digits)
+                    }}
+                    disabled={submitting}
+                  />
+                  <p className="mt-2 text-xs text-slate-500">We’ll use this number to contact you about availability and next steps.</p>
+                </div>
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
