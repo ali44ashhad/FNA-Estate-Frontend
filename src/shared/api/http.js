@@ -10,6 +10,16 @@ function getApiBaseUrl() {
 
 let refreshPromise = null
 
+async function readJsonSafe(res) {
+  const text = await res.text()
+  if (!text) return { text: '', data: null }
+  try {
+    return { text, data: JSON.parse(text) }
+  } catch {
+    return { text, data: null }
+  }
+}
+
 async function refreshAccessToken() {
   if (refreshPromise) return refreshPromise
 
@@ -21,11 +31,10 @@ async function refreshAccessToken() {
       credentials: 'include',
     })
 
-    const text = await res.text()
-    const data = text ? JSON.parse(text) : null
+    const { text, data } = await readJsonSafe(res)
 
     if (!res.ok) {
-      const message = data?.message || `Request failed (${res.status})`
+      const message = data?.message || text || `Request failed (${res.status})`
       const err = new Error(message)
       err.status = res.status
       err.data = data
@@ -60,11 +69,10 @@ async function requestOnce(path, { method = 'GET', body, auth = false } = {}) {
     body: body === undefined ? undefined : JSON.stringify(body),
   })
 
-  const text = await res.text()
-  const data = text ? JSON.parse(text) : null
+  const { text, data } = await readJsonSafe(res)
 
   if (!res.ok) {
-    const message = data?.message || `Request failed (${res.status})`
+    const message = data?.message || text || `Request failed (${res.status})`
     const err = new Error(message)
     err.status = res.status
     err.data = data

@@ -1,9 +1,12 @@
-import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Container from '../../shared/components/Container.jsx'
 import { ROUTES } from '../../shared/constants/routes.js'
 import { navCities } from '../home/data/homeContent.js'
 import { PROJECT_PROPERTY_TYPE_OPTIONS } from '../../shared/constants/projectTypes.js'
+import { clearAccessToken } from '../../shared/auth/authStorage.js'
+import { useAccessToken } from '../../shared/auth/useAccessToken.js'
+import { request } from '../../shared/api/http.js'
 
 function ChevronDown({ className = '' }) {
   return (
@@ -15,10 +18,69 @@ function ChevronDown({ className = '' }) {
 
 export default function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [me, setMe] = useState(null)
+  const profileRef = useRef(null)
   const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const token = useAccessToken()
+  const signedIn = Boolean(token)
+
+  const avatarInitial = useMemo(() => {
+    const s = typeof me?.name === 'string' ? me.name.trim() : ''
+    if (!s) return 'U'
+    return s[0].toUpperCase()
+  }, [me])
+
+  const avatarLabel = useMemo(() => (signedIn ? 'Account' : 'Guest'), [signedIn])
 
   if (pathname === ROUTES.login || pathname === ROUTES.signup) {
     return null
+  }
+
+  useEffect(() => {
+    if (!profileOpen) return
+    const onPointerDown = (e) => {
+      const el = profileRef.current
+      if (!el) return
+      if (e.target instanceof Node && el.contains(e.target)) return
+      setProfileOpen(false)
+    }
+    window.addEventListener('pointerdown', onPointerDown)
+    return () => window.removeEventListener('pointerdown', onPointerDown)
+  }, [profileOpen])
+
+  useEffect(() => {
+    let cancelled = false
+    if (!signedIn) {
+      setMe(null)
+      return
+    }
+
+    async function run() {
+      try {
+        const res = await request('/api/users/me', { auth: true })
+        const user = res?.data && typeof res.data === 'object' ? res.data : null
+        if (!cancelled) setMe(user)
+      } catch (err) {
+        if (err && typeof err === 'object' && err.status === 401) {
+          clearAccessToken()
+        }
+        if (!cancelled) setMe(null)
+      }
+    }
+
+    run()
+    return () => {
+      cancelled = true
+    }
+  }, [signedIn, token])
+
+  function onLogout() {
+    clearAccessToken()
+    setProfileOpen(false)
+    setMobileOpen(false)
+    if (pathname !== ROUTES.home) navigate(ROUTES.home)
   }
 
   return (
@@ -100,15 +162,52 @@ export default function SiteHeader() {
           >
             Wishlist <span className="text-slate-400">0</span>
           </button>
-          <Link to={ROUTES.login} className="text-sm font-medium text-slate-600 hover:text-emerald-800">
-            Log in
-          </Link>
-          <Link
-            to={ROUTES.signup}
-            className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-100"
-          >
-            Sign up
-          </Link>
+          {signedIn ? (
+            <div className="relative" ref={profileRef}>
+              <button
+                type="button"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald-800 text-sm font-semibold text-white shadow-sm hover:bg-emerald-900"
+                aria-label={avatarLabel}
+                aria-haspopup="menu"
+                aria-expanded={profileOpen}
+                onClick={() => setProfileOpen((o) => !o)}
+              >
+                <span aria-hidden>{avatarInitial}</span>
+              </button>
+
+              {profileOpen ? (
+                <div className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+                  <div className="px-4 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Account</p>
+                    <p className="mt-1 text-sm font-semibold text-slate-900">{me?.name || 'User'}</p>
+                    {me?.email ? <p className="mt-1 text-xs text-slate-600">{me.email}</p> : null}
+                    {!me?.email && me?.mobile ? <p className="mt-1 text-xs text-slate-600">{me.mobile}</p> : null}
+                  </div>
+                  <div className="border-t border-slate-200">
+                    <button
+                      type="button"
+                      className="w-full px-4 py-2.5 text-left text-sm font-semibold text-rose-700 hover:bg-rose-50"
+                      onClick={onLogout}
+                    >
+                      Log out
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <>
+              <Link to={ROUTES.login} className="text-sm font-medium text-slate-600 hover:text-emerald-800">
+                Log in
+              </Link>
+              <Link
+                to={ROUTES.signup}
+                className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-100"
+              >
+                Sign up
+              </Link>
+            </>
+          )}
           <Link
             to={ROUTES.contact}
             className="rounded-full bg-emerald-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-900"
@@ -143,20 +242,32 @@ export default function SiteHeader() {
             <Link to={ROUTES.home} className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50" onClick={() => setMobileOpen(false)}>
               Home
             </Link>
-            <Link
-              to={ROUTES.login}
-              className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
-              onClick={() => setMobileOpen(false)}
-            >
-              Log in
-            </Link>
-            <Link
-              to={ROUTES.signup}
-              className="rounded-lg px-3 py-2 font-semibold text-emerald-800 hover:bg-emerald-50"
-              onClick={() => setMobileOpen(false)}
-            >
-              Sign up
-            </Link>
+            {signedIn ? (
+              <button
+                type="button"
+                className="rounded-lg px-3 py-2 text-left font-semibold text-rose-700 hover:bg-rose-50"
+                onClick={onLogout}
+              >
+                Log out
+              </button>
+            ) : (
+              <>
+                <Link
+                  to={ROUTES.login}
+                  className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Log in
+                </Link>
+                <Link
+                  to={ROUTES.signup}
+                  className="rounded-lg px-3 py-2 font-semibold text-emerald-800 hover:bg-emerald-50"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Sign up
+                </Link>
+              </>
+            )}
             <Link
               to={ROUTES.projects}
               className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
