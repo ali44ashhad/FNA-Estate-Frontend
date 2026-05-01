@@ -1,10 +1,19 @@
 import { useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import Container from '../../../shared/components/Container.jsx'
 import { ROUTES } from '../../../shared/constants/routes.js'
 import { request } from '../../../shared/api/http.js'
 import { setAccessToken } from '../../../shared/auth/authStorage.js'
 import { requestGoogleAuthCode } from '../../../shared/auth/googleOAuth.js'
+
+function safeReturnTo(raw) {
+  if (typeof raw !== 'string') return ''
+  const val = raw.trim()
+  if (!val) return ''
+  if (!val.startsWith('/')) return ''
+  if (val.startsWith('//')) return ''
+  return val
+}
 
 function GoogleMark({ className = 'h-5 w-5' }) {
   return (
@@ -45,10 +54,12 @@ function OAuthButton({ children, disabled, onClick }) {
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const returnTo = safeReturnTo(searchParams.get('returnTo') || '')
 
   const isDisabled = useMemo(() => {
     return isSubmitting || !email.trim() || !password
@@ -70,7 +81,7 @@ export default function LoginPage() {
       if (!accessToken) throw new Error('Login failed')
 
       setAccessToken(accessToken)
-      navigate(ROUTES.home)
+      navigate(returnTo || ROUTES.home)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
     } finally {
@@ -89,7 +100,7 @@ export default function LoginPage() {
       if (!accessToken) throw new Error('Google sign-in failed')
 
       setAccessToken(accessToken)
-      navigate(ROUTES.home)
+      navigate(returnTo || ROUTES.home)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Google sign-in failed')
     } finally {

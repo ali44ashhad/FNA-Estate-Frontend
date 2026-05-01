@@ -1,5 +1,3 @@
-import { Link } from 'react-router-dom'
-import { ROUTES } from '../../../shared/constants/routes.js'
 import { getCategoryLabel, getSubTypeLabel } from '../../../shared/constants/projectTypes.js'
 
 function normalizeKey(raw) {
@@ -51,21 +49,8 @@ function collectOptions(project) {
   return out
 }
 
-function buildEnquiryHref({ projectId, projectName, category, subType, apartmentConfig }) {
-  const qs = new URLSearchParams()
-  if (projectId) qs.set('projectId', String(projectId))
-  if (projectName) qs.set('projectName', String(projectName))
-  if (category) qs.set('category', String(category))
-  if (subType) qs.set('subType', String(subType))
-  if (apartmentConfig) qs.set('apartmentConfig', String(apartmentConfig))
-  const query = qs.toString()
-  return query ? `${ROUTES.contact}?${query}` : ROUTES.contact
-}
-
-export default function ProjectInventoryOptions({ project }) {
+export default function ProjectInventoryOptions({ project, onEnquire }) {
   const options = collectOptions(project)
-  const projectId = project?.id
-  const projectName = typeof project?.name === 'string' ? project.name.trim() : ''
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -94,18 +79,19 @@ export default function ProjectInventoryOptions({ project }) {
                   <p className="text-sm font-semibold text-slate-900">{title}</p>
                   <p className="mt-0.5 text-xs text-slate-600">Tap enquire to share this preference with the advisory desk.</p>
                 </div>
-                <Link
-                  to={buildEnquiryHref({
-                    projectId,
-                    projectName,
-                    category: opt.category,
-                    subType: opt.subType,
-                    apartmentConfig: opt.apartmentConfig,
-                  })}
+                <button
+                  type="button"
                   className="inline-flex items-center justify-center rounded-lg bg-emerald-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-900"
+                  onClick={() =>
+                    onEnquire?.({
+                      category: opt.category,
+                      subType: opt.subType,
+                      apartmentConfig: opt.apartmentConfig,
+                    })
+                  }
                 >
                   Enquire
-                </Link>
+                </button>
               </div>
             )
           })}

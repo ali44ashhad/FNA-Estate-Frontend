@@ -1,4 +1,5 @@
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
 import Container from '../../../shared/components/Container.jsx'
 import { ROUTES } from '../../../shared/constants/routes.js'
 import { useProjectDetails } from '../../projects/hooks/useProjectDetails.js'
@@ -6,6 +7,23 @@ import ProjectAmenities from '../../projects/components/ProjectAmenities.jsx'
 import ProjectImageGallery from '../../projects/components/ProjectImageGallery.jsx'
 import ProjectMeta from '../../projects/components/ProjectMeta.jsx'
 import ProjectInventoryOptions from '../../projects/components/ProjectInventoryOptions.jsx'
+import LeadEnquiryModal from '../../leads/components/LeadEnquiryModal.jsx'
+import { clearAccessToken, getAccessToken } from '../../../shared/auth/authStorage.js'
+
+function normalizeKey(raw) {
+  return typeof raw === 'string' ? raw.trim() : ''
+}
+
+function buildReturnTo({ projectId, interest }) {
+  const qs = new URLSearchParams()
+  qs.set('lead', '1')
+  if (interest?.category) qs.set('category', String(interest.category))
+  if (interest?.subType) qs.set('subType', String(interest.subType))
+  if (interest?.apartmentConfig) qs.set('apartmentConfig', String(interest.apartmentConfig))
+  if (interest?.unitTypeKey) qs.set('unitTypeKey', String(interest.unitTypeKey))
+  if (interest?.unitTypeLabel) qs.set('unitTypeLabel', String(interest.unitTypeLabel))
+  return `/projects/${encodeURIComponent(String(projectId))}?${qs.toString()}`
+}
 
 function sanitizeHtml(html) {
   const input = typeof html === 'string' ? html : ''
@@ -65,7 +83,66 @@ function ProjectDetailsSkeleton() {
 
 export default function ProjectDetailsPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
+  const location = useLocation()
   const state = useProjectDetails(id)
+  const [leadOpen, setLeadOpen] = useState(false)
+  const [leadInterest, setLeadInterest] = useState(null)
+
+  const leadProject = useMemo(() => {
+    if (!state.item) return null
+    return { id: state.item.id, name: state.item.name }
+  }, [state.item])
+
+  function openLead(interest) {
+    setLeadInterest(interest)
+    setLeadOpen(true)
+  }
+
+  function handleEnquire(interest) {
+    const token = getAccessToken()
+    if (!token) {
+      const returnTo = buildReturnTo({ projectId: id, interest })
+      navigate(`${ROUTES.login}?returnTo=${encodeURIComponent(returnTo)}`)
+      return
+    }
+    openLead(interest)
+  }
+
+  function handleAuthRequired() {
+    clearAccessToken()
+    const returnTo = buildReturnTo({ projectId: id, interest: leadInterest || undefined })
+    navigate(`${ROUTES.login}?returnTo=${encodeURIComponent(returnTo)}`)
+  }
+
+  useEffect(() => {
+    const token = getAccessToken()
+    if (!token) return
+    if (!location.search) return
+
+    const sp = new URLSearchParams(location.search)
+    if (sp.get('lead') !== '1') return
+
+    const category = normalizeKey(sp.get('category'))
+    const subType = normalizeKey(sp.get('subType'))
+    const apartmentConfig = normalizeKey(sp.get('apartmentConfig'))
+    const unitTypeKey = normalizeKey(sp.get('unitTypeKey'))
+    const unitTypeLabel = normalizeKey(sp.get('unitTypeLabel'))
+
+    if (!category || !subType) return
+    if (category === 'residential' && subType === 'apartment' && !apartmentConfig) return
+
+    openLead({
+      category,
+      subType,
+      ...(apartmentConfig ? { apartmentConfig } : {}),
+      ...(unitTypeKey ? { unitTypeKey } : {}),
+      ...(unitTypeLabel ? { unitTypeLabel } : {}),
+    })
+
+    navigate(location.pathname, { replace: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, location.search, navigate])
 
   return (
     <article className="min-h-[60vh] bg-slate-50 py-12 sm:py-16">
@@ -87,12 +164,6 @@ export default function ProjectDetailsPage() {
             >
               Back to projects
             </Link>
-            <Link
-              to={ROUTES.contact}
-              className="inline-flex items-center justify-center rounded-full bg-emerald-800 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-900"
-            >
-              Enquire now
-            </Link>
           </div>
         </div>
 
@@ -113,7 +184,7 @@ export default function ProjectDetailsPage() {
             </div>
             <div className="lg:col-span-5">
               <div className="grid gap-6">
-                <ProjectInventoryOptions project={state.item} />
+                <ProjectInventoryOptions project={state.item} onEnquire={handleEnquire} />
 
                 <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                   <h2 className="text-base font-semibold text-slate-900">About</h2>
@@ -139,6 +210,14 @@ export default function ProjectDetailsPage() {
             <p className="mt-1 text-sm text-slate-600">Try going back to the projects list.</p>
           </div>
         )}
+
+        <LeadEnquiryModal
+          open={leadOpen}
+          onClose={() => setLeadOpen(false)}
+          project={leadProject}
+          interest={leadInterest}
+          onAuthRequired={handleAuthRequired}
+        />
       </Container>
     </article>
   )
