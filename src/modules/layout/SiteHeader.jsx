@@ -25,6 +25,7 @@ export default function SiteHeader() {
   const navigate = useNavigate()
   const token = useAccessToken()
   const signedIn = Boolean(token)
+  const hideHeader = pathname === ROUTES.login || pathname === ROUTES.signup
 
   const avatarInitial = useMemo(() => {
     const s = typeof me?.name === 'string' ? me.name.trim() : ''
@@ -34,11 +35,8 @@ export default function SiteHeader() {
 
   const avatarLabel = useMemo(() => (signedIn ? 'Account' : 'Guest'), [signedIn])
 
-  if (pathname === ROUTES.login || pathname === ROUTES.signup) {
-    return null
-  }
-
   useEffect(() => {
+    if (hideHeader) return
     if (!profileOpen) return
     const onPointerDown = (e) => {
       const el = profileRef.current
@@ -48,9 +46,10 @@ export default function SiteHeader() {
     }
     window.addEventListener('pointerdown', onPointerDown)
     return () => window.removeEventListener('pointerdown', onPointerDown)
-  }, [profileOpen])
+  }, [hideHeader, profileOpen])
 
   useEffect(() => {
+    if (hideHeader) return
     let cancelled = false
     if (!signedIn) {
       setMe(null)
@@ -74,7 +73,7 @@ export default function SiteHeader() {
     return () => {
       cancelled = true
     }
-  }, [signedIn, token])
+  }, [hideHeader, signedIn, token])
 
   function onLogout() {
     clearAccessToken()
@@ -82,6 +81,8 @@ export default function SiteHeader() {
     setMobileOpen(false)
     if (pathname !== ROUTES.home) navigate(ROUTES.home)
   }
+
+  if (hideHeader) return null
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
