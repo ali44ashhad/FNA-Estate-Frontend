@@ -77,7 +77,7 @@ export default function ProjectsPage() {
       .sort((a, b) => a[1].localeCompare(b[1]))
       .map(([value, label]) => ({ value, label }))
     return [{ value: '', label: 'All configs' }, ...opts]
-  }, [apartmentConfig, category, subType, state.items])
+  }, [category, subType, state.items])
 
   function onSelectCategory(next) {
     const nextCategory = normalizeCategory(next)

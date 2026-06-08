@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import Container from '../../../shared/components/Container.jsx'
 import { ROUTES } from '../../../shared/constants/routes.js'
 import { useProjectDetails } from '../../projects/hooks/useProjectDetails.js'
@@ -94,10 +94,10 @@ export default function ProjectDetailsPage() {
     return { id: state.item.id, name: state.item.name }
   }, [state.item])
 
-  function openLead(interest) {
+  const openLead = useCallback((interest) => {
     setLeadInterest(interest)
     setLeadOpen(true)
-  }
+  }, [])
 
   function handleEnquire(interest) {
     const token = getAccessToken()
@@ -132,17 +132,22 @@ export default function ProjectDetailsPage() {
     if (!category || !subType) return
     if (category === 'residential' && subType === 'apartment' && !apartmentConfig) return
 
-    openLead({
+    const interest = {
       category,
       subType,
       ...(apartmentConfig ? { apartmentConfig } : {}),
       ...(unitTypeKey ? { unitTypeKey } : {}),
       ...(unitTypeLabel ? { unitTypeLabel } : {}),
-    })
+    }
+    const path = location.pathname
 
-    navigate(location.pathname, { replace: true })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, location.search, navigate])
+    const tid = window.setTimeout(() => {
+      openLead(interest)
+      navigate(path, { replace: true })
+    }, 0)
+
+    return () => window.clearTimeout(tid)
+  }, [location.pathname, location.search, navigate, openLead])
 
   return (
     <article className="min-h-[60vh] bg-slate-50 py-12 sm:py-16">

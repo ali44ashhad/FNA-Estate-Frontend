@@ -52,8 +52,13 @@ export default function SiteHeader() {
     if (hideHeader) return
     let cancelled = false
     if (!signedIn) {
-      setMe(null)
-      return
+      const clearId = window.setTimeout(() => {
+        if (!cancelled) setMe(null)
+      }, 0)
+      return () => {
+        cancelled = true
+        window.clearTimeout(clearId)
+      }
     }
 
     async function run() {
@@ -164,6 +169,22 @@ export default function SiteHeader() {
             Wishlist <span className="text-slate-400">0</span>
           </button>
           {signedIn ? (
+            <Link
+              to={ROUTES.myPurchases}
+              className="text-sm font-medium text-slate-600 hover:text-emerald-800"
+            >
+              My purchases
+            </Link>
+          ) : null}
+          {signedIn ? (
+            <Link
+              to={ROUTES.myVisits}
+              className="text-sm font-medium text-slate-600 hover:text-emerald-800"
+            >
+              My visits
+            </Link>
+          ) : null}
+          {signedIn ? (
             <div className="relative" ref={profileRef}>
               <button
                 type="button"
@@ -185,6 +206,20 @@ export default function SiteHeader() {
                     {!me?.email && me?.mobile ? <p className="mt-1 text-xs text-slate-600">{me.mobile}</p> : null}
                   </div>
                   <div className="border-t border-slate-200">
+                    <Link
+                      to={ROUTES.myVisits}
+                      className="block w-full px-4 py-2.5 text-left text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                      onClick={() => setProfileOpen(false)}
+                    >
+                      My visits
+                    </Link>
+                    <Link
+                      to={ROUTES.myPurchases}
+                      className="block w-full px-4 py-2.5 text-left text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                      onClick={() => setProfileOpen(false)}
+                    >
+                      My purchases
+                    </Link>
                     <button
                       type="button"
                       className="w-full px-4 py-2.5 text-left text-sm font-semibold text-rose-700 hover:bg-rose-50"
@@ -244,13 +279,29 @@ export default function SiteHeader() {
               Home
             </Link>
             {signedIn ? (
-              <button
-                type="button"
-                className="rounded-lg px-3 py-2 text-left font-semibold text-rose-700 hover:bg-rose-50"
-                onClick={onLogout}
-              >
-                Log out
-              </button>
+              <>
+                <Link
+                  to={ROUTES.myVisits}
+                  className="rounded-lg px-3 py-2 font-semibold text-emerald-800 hover:bg-emerald-50"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  My visits
+                </Link>
+                <Link
+                  to={ROUTES.myPurchases}
+                  className="rounded-lg px-3 py-2 font-semibold text-emerald-800 hover:bg-emerald-50"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  My purchases
+                </Link>
+                <button
+                  type="button"
+                  className="rounded-lg px-3 py-2 text-left font-semibold text-rose-700 hover:bg-rose-50"
+                  onClick={onLogout}
+                >
+                  Log out
+                </button>
+              </>
             ) : (
               <>
                 <Link

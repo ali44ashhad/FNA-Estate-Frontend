@@ -1,10 +1,13 @@
 import { Route, Routes } from 'react-router-dom'
 import MainLayout from './MainLayout.jsx'
 import { HomePage } from '../modules/home/index.js'
-import { 
+import {
   ContactPage,
   FaqPage,
   FeaturedProjectsPage,
+  MyVisitsPage,
+  MyPurchasesPage,
+  PurchaseDetailsPage,
   ProjectsPage,
   ProjectDetailsPage,
   LoginPage,
@@ -26,6 +29,9 @@ export default function App() {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/my-visits" element={<MyVisitsPage />} />
+        <Route path="/my-purchases" element={<MyPurchasesPage />} />
+        <Route path="/my-purchases/:id" element={<PurchaseDetailsPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/faq" element={<FaqPage />} />

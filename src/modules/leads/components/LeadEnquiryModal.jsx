@@ -49,7 +49,7 @@ export default function LeadEnquiryModal({ open, onClose, project, interest, onA
     setError('')
     setSuccess(null)
     setPhone('')
-  }, [open, onAuthRequired])
+  }, [open])
 
   useEffect(() => {
     if (!open) return
@@ -78,7 +78,7 @@ export default function LeadEnquiryModal({ open, onClose, project, interest, onA
     return () => {
       cancelled = true
     }
-  }, [open])
+  }, [open, onAuthRequired])
 
   async function onSubmit(e) {
     e.preventDefault()

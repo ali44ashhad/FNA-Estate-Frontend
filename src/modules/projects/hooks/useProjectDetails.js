@@ -9,26 +9,33 @@ export function useProjectDetails(id) {
     let alive = true
 
     if (!projectId) {
-      setState({ loading: false, error: 'Invalid project id', item: null })
+      const tid = window.setTimeout(() => {
+        if (alive) setState({ loading: false, error: 'Invalid project id', item: null })
+      }, 0)
       return () => {
         alive = false
+        window.clearTimeout(tid)
       }
     }
 
-    setState((s) => ({ ...s, loading: true, error: '' }))
+    const startId = window.setTimeout(() => {
+      if (!alive) return
+      setState((s) => ({ ...s, loading: true, error: '' }))
 
-    getProjectById(projectId)
-      .then((item) => {
-        if (!alive) return
-        setState({ loading: false, error: '', item })
-      })
-      .catch((e) => {
-        if (!alive) return
-        setState({ loading: false, error: e?.message || 'Failed to load project', item: null })
-      })
+      getProjectById(projectId)
+        .then((item) => {
+          if (!alive) return
+          setState({ loading: false, error: '', item })
+        })
+        .catch((e) => {
+          if (!alive) return
+          setState({ loading: false, error: e?.message || 'Failed to load project', item: null })
+        })
+    }, 0)
 
     return () => {
       alive = false
+      window.clearTimeout(startId)
     }
   }, [id])
 
