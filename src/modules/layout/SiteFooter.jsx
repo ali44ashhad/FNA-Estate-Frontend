@@ -10,7 +10,7 @@ export default function SiteFooter() {
   }
 
   return (
-    <footer className="border-t border-slate-200 bg-slate-900 text-slate-300">
+    <footer className="border-t border-slate-200 bg-[#012B23] text-slate-300">
       <Container className="py-12">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div>
