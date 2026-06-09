@@ -2,7 +2,7 @@ import { Route, Routes } from 'react-router-dom'
 import MainLayout from './MainLayout.jsx'
 import { HomePage } from '../modules/home/index.js'
 import {
-  ContactPage,
+  ContactHero,
   FaqPage,
   FeaturedProjectsPage,
   MyVisitsPage,
@@ -26,7 +26,7 @@ export default function App() {
         <Route path="/featured-projects" element={<FeaturedProjectsPage />} />
         <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/projects/:id" element={<ProjectDetailsPage />} />
-        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/contact" element={<ContactHero />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/my-visits" element={<MyVisitsPage />} />
