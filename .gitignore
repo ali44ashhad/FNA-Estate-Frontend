@@ -22,11 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-<<<<<<< Updated upstream
+# Environment variables
 
 # Environment variables
-.env*
-=======
-# Environment variables
-.env
->>>>>>> Stashed changes
+config.bat

@@ -35,11 +35,7 @@ export default function SiteFooter() {
                   Featured projects
                 </Link>
               </li>
-              <li>
-                <Link to={ROUTES.blog} className="hover:text-white">
-                  Blog
-                </Link>
-              </li>
+           
               <li>
                 <Link to={ROUTES.contact} className="hover:text-white">
                   Contact us

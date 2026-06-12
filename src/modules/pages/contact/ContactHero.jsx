@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FiMail, FiPhone, FiMapPin, FiClock } from 'react-icons/fi';
 import ContactPage from './ContactPage';
+import LocationMap from '../../home/components/LocationMap';
 
 const ContactHero = () => {
 
@@ -77,6 +78,7 @@ const ContactHero = () => {
       </div>
     </section>
     <ContactPage/>
+    <LocationMap/>
  </>
   );
 };

@@ -93,7 +93,6 @@ export default function SiteHeader() {
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
       <Container className="flex h-16 items-center justify-between gap-4 lg:h-[4.25rem]">
         <Link to={ROUTES.home} className="flex shrink-0 items-center gap-2">
-        
           <span className="text-lg font-bold tracking-tight text-slate-900">Estate</span>
         </Link>
 
@@ -149,9 +148,7 @@ export default function SiteHeader() {
               </div>
             </div>
           </div>
-          <Link className="rounded-lg px-3 py-2 hover:bg-slate-50 hover:text-emerald-800" to={ROUTES.blog}>
-            Blog
-          </Link>
+         
           <Link className="rounded-lg px-3 py-2 hover:bg-slate-50 hover:text-emerald-800" to={ROUTES.whoWeAre}>
             Who we are
           </Link>
@@ -274,83 +271,90 @@ export default function SiteHeader() {
 
       {mobileOpen ? (
         <div id="mobile-nav" className="border-t border-slate-200 bg-white lg:hidden">
-          <Container className="flex flex-col gap-1 py-4">
-            <Link to={ROUTES.home} className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50" onClick={() => setMobileOpen(false)}>
-              Home
-            </Link>
-            {signedIn ? (
-              <>
-                <Link
-                  to={ROUTES.myVisits}
-                  className="rounded-lg px-3 py-2 font-semibold text-emerald-800 hover:bg-emerald-50"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  My visits
-                </Link>
-                <Link
-                  to={ROUTES.myPurchases}
-                  className="rounded-lg px-3 py-2 font-semibold text-emerald-800 hover:bg-emerald-50"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  My purchases
-                </Link>
+          {/* Converted into a structured vertical flex container to isolate top items vs bottom actions */}
+          <Container className="flex flex-col min-h-[calc(100vh-4rem)] justify-between py-4">
+            <div className="flex flex-col gap-1 w-full">
+              <Link to={ROUTES.home} className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50" onClick={() => setMobileOpen(false)}>
+                Home
+              </Link>
+              {signedIn ? (
+                <>
+                  <Link
+                    to={ROUTES.myVisits}
+                    className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    My visits
+                  </Link>
+                  <Link
+                    to={ROUTES.myPurchases}
+                    className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    My purchases
+                  </Link>
+                </>
+              ) : null}
+              <Link
+                to={ROUTES.projects}
+                className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
+                onClick={() => setMobileOpen(false)}
+              >
+                Projects
+              </Link>
+              <Link
+                to={`${ROUTES.home}#cities`}
+                className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
+                onClick={() => setMobileOpen(false)}
+              >
+                Cities
+              </Link>
+              
+              <Link
+                to={ROUTES.whoWeAre}
+                className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
+                onClick={() => setMobileOpen(false)}  
+              >
+                Who we are
+              </Link>
+              <Link
+                to={ROUTES.contact}
+                className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
+                onClick={() => setMobileOpen(false)}
+              >
+                Contact us
+              </Link>
+            </div>
+
+            {/* Pinned Bottom Section Area for Authentication Buttons inside Mobile/Tablet Navigation Drawer */}
+            <div className="mt-auto pt-4 border-t border-slate-100 flex flex-col gap-2 w-full">
+              {signedIn ? (
                 <button
                   type="button"
-                  className="rounded-lg px-3 py-2 text-left font-semibold text-rose-700 hover:bg-rose-50"
+                  className="w-full rounded-lg px-3 py-2.5 text-left font-semibold text-rose-700 hover:bg-rose-50"
                   onClick={onLogout}
                 >
                   Log out
                 </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  to={ROUTES.login}
-                  className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Log in
-                </Link>
-                <Link
-                  to={ROUTES.signup}
-                  className="rounded-lg px-3 py-2 font-semibold text-emerald-800 hover:bg-emerald-50"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Sign up
-                </Link>
-              </>
-            )}
-            <Link
-              to={ROUTES.projects}
-              className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
-              onClick={() => setMobileOpen(false)}
-            >
-              Projects
-            </Link>
-            <Link
-              to={`${ROUTES.home}#cities`}
-              className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
-              onClick={() => setMobileOpen(false)}
-            >
-              Cities
-            </Link>
-            <Link to={ROUTES.blog} className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50" onClick={() => setMobileOpen(false)}>
-              Blog
-            </Link>
-            <Link
-              to={ROUTES.whoWeAre}
-              className="rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
-              onClick={() => setMobileOpen(false)}
-            >
-              Who we are
-            </Link>
-            <Link
-              to={ROUTES.contact}
-              className="rounded-lg px-3 py-2 font-semibold text-emerald-800 hover:bg-emerald-50"
-              onClick={() => setMobileOpen(false)}
-            >
-              Contact us
-            </Link>
+              ) : (
+                <div className="flex flex-col gap-2 w-full">
+                  <Link
+                    to={ROUTES.login}
+                    className="w-full text-center rounded-xl border border-[#007A55]-200 py-3 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    to={ROUTES.signup}
+                    className="w-full text-center rounded-xl bg-emerald-800 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-900"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    Sign up
+                  </Link>
+                </div>
+              )}
+            </div>
           </Container>
         </div>
       ) : null}

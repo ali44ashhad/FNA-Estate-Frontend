@@ -13,7 +13,7 @@ export default function CitiesShowcase() {
           subtitle="Explore inventory and RERA-registered options in corridors we actively cover."
         />
         
-        {/* Responsive Grid Layout */}
+        {/* Responsive Grid Layout */}  
         <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mt-12">
           {popularCities.map((city) => (
             <a
