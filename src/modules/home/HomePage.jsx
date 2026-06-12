@@ -10,11 +10,12 @@ import AboutStrip from './components/AboutStrip.jsx'
 import { ROUTES } from '../../shared/constants/routes.js'
 import { useProjectsList } from '../projects/hooks/useProjectsList.js'
 import { projectToCardProps } from '../projects/utils/projectCardAdapter.js'
+import HeroAboutSection from '../pages/homePages/HeroAboutSection.jsx'
 
 export default function HomePage() {
-  const exclusive = useProjectsList({ page: 1, limit: 3 })
-  const plots = useProjectsList({ propertyType: 'plot', page: 1, limit: 3 })
-  const featured = useProjectsList({ propertyType: 'apartment', page: 1, limit: 3 })
+  const exclusive = useProjectsList({ page: 1, limit: 4 })
+  const plots = useProjectsList({ propertyType: 'plot', page: 1, limit: 4 })
+  const featured = useProjectsList({ propertyType: 'apartment', page: 1, limit: 4 })
 
   const exclusiveCards = useMemo(() => exclusive.items.map(projectToCardProps), [exclusive.items])
   const plotCards = useMemo(() => plots.items.map(projectToCardProps), [plots.items])
@@ -24,6 +25,9 @@ export default function HomePage() {
     <main>
       <HeroSection />
       <TrustStats />
+
+      <HeroAboutSection/>
+
       <ProjectShowcase
         id="projects"
         eyebrow="Exclusive"

@@ -1,7 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import SpecialityGrid from './SpecialityGrid';
-export default function WhoWeAreHeroPage() {
+import WhoWeAreSecond from './WhoWeAreSecond';
+import BlogSectionWhyChoose from './BlogSectionWhyChoose.jsx';
+
+
+
+export default function WhoWeArePage() {
   return (
    <>
     <section className="min-h-screen bg-white text-slate-900 font-sans overflow-x-hidden selection:bg-emerald-50 selection:text-emerald-900 relative flex items-center">
@@ -72,7 +76,8 @@ export default function WhoWeAreHeroPage() {
       </div>
     </section>
 
-    <SpecialityGrid/>
+    <WhoWeAreSecond/>
+    <BlogSectionWhyChoose/>
    </>
   );
 }

@@ -4,6 +4,7 @@ import heroImage from '../../../assets/hero-image.png';
 
 export default function HeroSection() {
   return (
+    <>
     <div className="min-h-screen bg-white text-slate-900 font-sans overflow-x-hidden selection:bg-emerald-50 selection:text-emerald-900 relative">
       {/* Subtle Premium Background Glows */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-b from-emerald-50/40 to-transparent rounded-full blur-3xl pointer-events-none" />
@@ -77,5 +78,7 @@ export default function HeroSection() {
         </div>
       </div>
     </div>
+
+    </>
   );
 }
